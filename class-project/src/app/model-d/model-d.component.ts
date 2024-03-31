@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import Account  from '../app.Account';
 
 @Component({
@@ -8,61 +9,70 @@ import Account  from '../app.Account';
       <h1 class="lead">
         Model-Driven {{title}}!
       </h1>
-      <br />
       <div class="container-md ">
         <div class="row">
-          <div class="col">&nbsp;</div>
-          <div class="col-6 bg-light text-dark border border-primary p-4">
-            <p class="lead">Kindly fill out the below form to create an account</p>
-            <form #acctForm=ngForm (ngSubmit)="onSubmit(acctForm.value)">
-              <div class="mb-3">
-                <label for="inputFirstName" class="form-label">First Name</label>
+          <div class="col-2">&nbsp;</div>
+          <div class="col-8 bg-light text-dark border border-primary p-4">
+            
+            <form 
+              [formGroup]="form"
+              (ngSubmit)="onSubmit(form.value)">
+              <div class="form-floating mb-3">
                 <input type="text" class="form-control" 
-                  id="inputFirstName" 
-                  #inputFirstName="ngModel" 
-                  name="inputFirstName" 
-                  required
-                  minlength="3"
-                  ngModel>
-                <span *ngIf="inputFirstName.valid && inputFirstName.touched" class="text-danger">First Name is required</span>
+                id="inputFirstName"
+                name="inputFirstName" 
+                required
+                minlength="3"
+                placeholder="First Name"
+                formControlName="inputFirstName">
+                <label for="inputFirstName" aria-label="inputFirstName">First Name</label>
+                
               </div>
-              <div class="mb-3">
-                <label for="inputLastName" class="form-label">Last Name</label>
+              <div class="form-floating mb-3">
                 <input type="text" class="form-control" 
-                  id="inputLastName" 
-                  #inputLastName="ngModel" 
+                  id="inputLastName"
                   name="inputLastName" 
                   required
                   minlength="3"
-                  ngModel>
-                <span *ngIf="inputLastName.valid && inputLastName.touched" class="text-danger">Last Name is required</span>
+                  placeholder="Last Name"
+                  formControlName="inputLastName">
+                <label for="inputLastName">Last Name</label>
               </div>
-              <div class="mb-3">
-                <label for="inputEmail" class="form-label">Email address</label>
-                <input type="email" class="form-control" id="inputEmail" #inputEmail="ngModel" name="inputEmail" aria-describedby="emailHelp" ngModel>
-                <span *ngIf="inputEmail.valid && inputEmail.touched" class="text-danger">Email is required</span>
-                <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+              <div class="form-floating mb-3">
+                <input type="email" class="form-control" 
+                  id="inputEmail"
+                  name="inputEmail" 
+                  required
+                  placeholder="Email Address" 
+                  formControlName="inputEmail">
+                <label for="inputEmail">Email address</label>
               </div>
-              <div class="mb-3">
-                <label for="inputDeposit" class="form-label">Opening Balance</label>
+              <div class="form-floating mb-3">
                 <input type="text" class="form-control" 
-                  id="inputDeposit" 
-                  #inputDeposit="ngModel" 
+                  id="inputDeposit"
                   name="inputDeposit" 
                   required
                   minlength="3"
-                  ngModel>
-                <span *ngIf="inputDeposit.valid && inputDeposit.touched" class="text-danger">An opening Balance is required</span>
+                  placeholder="Opening Balance"
+                  formControlName="inputDeposit">
+                <label for="inputDeposit">Opening Balance</label>
               </div>
-              <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="savingOrFixed" #savingOrFixed="ngModel" name="savingOrFixed" ngModel>
-                <span *ngIf="savingOrFixed.valid && savingOrFixed.touched" class="text-danger">Please check if it is not a regular savings but a fixed deposit</span>
-                <label class="form-check-label" for="savingOrFixed">Check if it is not a regular savings but a fixed deposit</label>
+              <div class="form-floating mb-3">
+                <select class="form-select" 
+                  id="savingOrFixed"
+                  name="savingOrFixed" 
+                  required
+                  placeholder="Savings or Fixed Deposit"
+                  formControlName="savingOrFixed">
+                  <option value="0">Savings</option>
+                  <option value="1">Fixed Deposit</option>
+                </select>
+                <label for="savingOrFixed">Savings or Fixed Deposit</label>
               </div>
-              <button type="submit" class="btn btn-primary">Submit</button>
+              <button type="submit" [disabled]="!form.valid" class="btn btn-primary">Submit</button>
             </form>
           </div>
-          <div class="col">&nbsp;</div>
+          <div class="col-2">&nbsp;</div>
         </div>
       </div>
     </div>
@@ -70,19 +80,48 @@ import Account  from '../app.Account';
   styles: [
   ]
 })
-export class ModelDComponent {
+export class ModelDComponent implements OnInit {
+  form: FormGroup = new FormGroup({});
+  // form: FormGroup;
+  // [\\w\\-\\s\\/]+
+  ngOnInit(): void {
+      this.form = new FormGroup({
+        inputFirstName: new FormControl('', Validators.compose([
+          Validators.pattern('[\\w\\-\\s\\/]+'), 
+          Validators.required
+        ])),
+        inputLastName: new FormControl('', Validators.compose([
+          Validators.pattern('[\\w\\-\\s\\/]+'), 
+          Validators.required
+        ])),
+        inputEmail: new FormControl('', Validators.compose([
+          Validators.pattern('[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}'), 
+          Validators.required
+        ])),
+        inputDeposit: new FormControl('', Validators.compose([
+          Validators.pattern('[0-9]+'), 
+          Validators.required
+        ])),
+        savingOrFixed: new FormControl('', Validators.required),
+      });
+  }
+
   title = 'Account Registeration Form';
+  
+
 
   onSubmit(formValue: any) {
     formValue.savingOrFixed === true ? formValue.savingOrFixed = 1 : formValue.savingOrFixed = 0;
     let acct1 = new Account(
       formValue.inputFirstName, 
-      formValue.inputLastName, 
+      formValue.inputLastName,       
+      formValue.inputDeposit,
       formValue.inputEmail, 
-      formValue.inputDeposit, 
-      formValue.savingOrFixed);
+      formValue.savingOrFixed
+    );
     console.log('Form Value = ', formValue);
     console.log('Account Details = ', acct1);
-    console.log('Account Balance = ', acct1.getAccountDetails());
+    console.log(acct1.getAccountDetails());
+    console.log('Account Balance = ', acct1.getBalance());
   }
 }

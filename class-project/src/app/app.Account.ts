@@ -5,7 +5,7 @@
 // Global variable to hold the registered Account users
 var globalRegisteredAccounts:Account[] = [];
 
-enum AccountType {
+export enum AccountType {
   Savings = 0,
   FixedDeposit = 1
 }
@@ -26,6 +26,7 @@ export default class Account {
     this.acctEmail = acctEmail;
     this.acctBalance = acctBalance;
     this.acctType = acctType;
+    globalRegisteredAccounts.push(this);
     console.log(`${acctFirstName} ${acctLastName} account created successfully with ${acctBalance}`);
   }
 
